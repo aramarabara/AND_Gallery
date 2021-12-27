@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="shoesNav"></div>
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script>
+    // compile the template
+    var template = Handlebars.compile("Handlebars <b>{{doesWhat}}</b>");
+    // execute the compiled template and print the output to the console
+    console.log(template({ doesWhat: "rocks!" }));
+
+    // 1. 일반 객체라면 
+    var obj = {
+        firstName : "lee",
+        lastName : "yooSong"
+    }
+    // <p>{{firstname}} {{lastname}}</p>
+
+    // 2. 만일 객체의 객체라면 : 
+    var object = {
+        person : {
+            firstName : "lee", 
+            lastName : "yooSong"
+        }
+    }
+
+    // <p>{{person.firstname}} {{person.lastname}}</p>
+
+    // 3. 특수 맥락 (with 와 each)
+    // a. (with)
+    // {{#with person}}
+    // {{firstname}} {{lastname}}
+    // {{/with}}
+
+    // 객체의 객체 속성을 불러오는 데 도움을 준다. 
+
+    // b. (each) 
+    // 객체의 각 속성을 모두 불러오는 데 도움을 준다. 
+    // <ul class="people_list">
+    //   {{#each people}}
+    //     <li>{{this}}</li>
+    //   {{/each}}
+    // </ul>
+    var object2 = {
+        people: [
+            "Yehuda Katz",
+            "Alan Johnson",
+            "Charles Jolley",
+        ],
+    }
+
+    // 4. 주석처리 
+    // {{! This comment will not show up in the output}}
+
+
+    // 5. Helper : 
+    // loud 뒤의 lastName에 콜백함수를 건다 
+    Handlebars.registerHelper('loud', function (aString) {
+        return aString.toUpperCase()
+    })
+    // {{firstname}} {{loud lastname}}
+
+    // people의 print_person은 this(그 맥락의 people 속성 뜻함).first + last이다 
+    Handlebars.registerHelper('print_person', function () {
+        return this.firstname + ' ' + this.lastname
+    })
+    // {{#each people}}
+    //     {{print_person}}
+    // {{/each}}
+
+    // Block_Helper은 특정 코멘트를 지정, 커스터마이징한 DOM을 구성할 수 있게 해준다. 
+    // {{#list people}}{{firstname}} {{lastname}}{{/list}}
+    // Handlebars.registerHelper("list", function(items, options) {
+    //     const itemsAsHtml = items.map(item => "<li>" + options.fn(item) + "</li>");
+    //     return "<ul>\n" + itemsAsHtml.join("\n") + "\n</ul>";
+    // });
+
+    // 6. Escape 처리 
+    // {{{}}}, 3단은 이스케이프 처리되지 않음 
+    // {{}}은 특수문자를 이스케이프 처리, 표현식으로 표현함 (&amp; &lt; &gt; &quot; &#x27; &#x60; &#x3D; 등등 )
+
+    // ** 만일 helper에서 non_escape를 하고 싶다면, 
+    // return값을 Handlebar.SafeString()으로 반환하면 된다. 
+
+    // 7. Partials : 문법의 중복 사용 
+    
+  </script>
+</body>
+</html>

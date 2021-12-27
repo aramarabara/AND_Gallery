@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .redText {color: red;}
+        .blueText {color: blue;}
+        .greenText {color: green;}
+    </style>
+</head>
+<body>
+<!-- CDN -->
+<!-- CDN으로 가능, 어플리케이션이 아닌 웹 페이지일 경우 CDN 강추 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js" integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Template, 맥락이 분리되어 HTML을 확연히 구분할 수 있게 바뀌었음 -->
+<script id="entry-template" type="text/x-handlebars-template">
+    <h3>1. Template Activate</h3>
+    <p>{{activate}}</p>
+
+    <h3>2. Using #each</h3>
+    <p>-- {{name}}</p>
+    <ol>
+        {{#each quotes}}
+        <li>{{quote}}
+        {{/each}}
+    </ol>
+
+    <h3>3. Using nonEscape (non-escape tags) </h3>
+    <p>{{{nonEscape}}}</p>
+
+    <h3>4. Using Helper</h3>
+    <p>{{makeLink "hello google!!!!" "https://www.google.co.kr/"}}</p>
+
+    <h3>5. Using #each</h3>
+
+    <h3>6. Using registerHelper with attribute</h3>
+    {{changeColor "Make my text red" color="blue"}}
+
+    <h3></h3>
+    {{sayHello}}
+</script>
+
+<!-- Template에 적용할 value값 -->
+<script type="text/javascript">  
+    
+    // 0. Compile 할 Template을 가져온다. 
+    // var source = document.getElementById("entry-template").innerHTML;
+    // var template = Handlebars.compile(source);
+    // ******
+
+        // 1. {{}} 이중 중괄호에 값을 넣어 Template을 통해서 컴파일한다. 
+        // var context = {
+        //     activate : "success"
+        // }
+
+
+        // 2. 객체의 배열을 통해서 #each문을 돌릴 수 있다. 
+        // var context = {
+        //     name : "yooSong", 
+        //     quotes : [
+        //         {quote : '123'},
+        //         {quote : '123'},
+        //         {quote : '123'},
+        //         {quote : '123'},
+        //         {quote : '123'}
+        //     ]
+        // };
+        
+        // 3. {{{}}} 삼중 중괄호를 통해서 non-escape 처리를 할 수 있다. 
+        var context = {
+            nonEscape : "<i>hi everyone</i>"
+        };
+
+        // 4. Handlebars.registerHelper()를 통해서 받아온 데이터를 스크립트 단에서 활용할 수 있다.
+        // registerHelper는 값이 대입되기 전에 들어가야 한다.  
+        Handlebars.registerHelper("makeLink", function(text,url){
+            text = Handlebars.Utils.escapeExpression(text); 
+            url = Handlebars.Utils.escapeExpression(url); 
+
+            var theLink = `<a href=${url}>${text}</a>`; 
+
+            return new Handlebars.SafeString(theLink); 
+        });
+
+        // 5. Handlebar.registerHelper를 통해서 attribute에 접근한다.
+        Handlebars.registerHelper("changeColor", function(text, options){
+            text = Handlebars.Utils.escapeExpression(text); 
+            
+            if(options.hash.color === "red") {
+                return new Handlebars.SafeString("<span class='redText'>" + text + "</span>"); 
+            } else if(options.hash.color === "blue") {
+                return new Handlebars.SafeString(`<span class='blueText'> ${text} </span>`);
+            } else {
+                return new Handlebars.SafeString(`<span class='greenText'> ${text} </span>`); 
+            }
+        });
+
+        // 6. 새로운 Context를 추가하여 data를 보낸다. 
+        var context2 = {
+            data:{
+                lang:"spanish"
+            }
+        };
+        Handlebars.registerHelper("sayHello", function(options){
+            switch(options.data.lang){
+                case "spanish":
+                    return"Hola"; 
+                    break;
+                case "french":
+                    return"Bonjour"; 
+                    break;
+                default : 
+                    return"Hello"; 
+                    break;
+            }
+        });
+
+
+    
+    // ******
+    // N. 특정 태그에 붙인다. 
+    //var html = template(context, context2);
+    //document.querySelector('body').innerHTML += html; 
+
+</script>
+
+
+<!-- BlockHelper 시연을 위한 script 태그 -->
+<script id="the-template" type="text/x-handlebars-template">
+    
+    {{#makeRadio "size"}}
+        Small
+        Medium
+        Large
+    {{/makeRadio}}<br />
+
+    {{#areEqual 1 1 }}
+        Numbers are Equal 
+    {{else}}
+        Numbers are Not Equal 
+    {{/areEqual}}<br />
+
+    {{#if "isActive"}}
+        firstImg 
+    {{else}}
+        secondImg 
+    {{/if}}
+</script>
+
+<script type="text/javascript">
+    // 7. BlockHelper를 사용하여 데이터를 미리 삽입한다.. 
+       
+    // 1) compile 할 정보를 담은 template Script를 가져온다. 
+    var templateInfo = document.getElementById("the-template").innerHTML; 
+
+    // 2) HandleBar가 컴파일 한 DOM트리를 변수에 저장한다. 
+    var template = Handlebars.compile(templateInfo); 
+
+    // 3) Build한 Block에 대해 함수를 추가하는 Helper를 첨부한다. 
+    Handlebars.registerHelper("makeRadio", function(name, options){
+        var radioList = options.fn(); 
+        // small / medium, Large, 즉 block 안의 모든 텍스트를 다 가져온다.. 
+        console.log(radioList); 
+
+        radioList = radioList.trim().split("\n"); 
+
+        var output = ""; 
+
+        for(var val in radioList) {
+            var item = radioList[val].trim(); 
+            output += `<input type="radio" name="${name}" value="${item}">${item}<br />`; 
+        }
+        return output; 
+    });
+
+    // 4) 먼저 예시처럼 Data를 받지 않는다 (미리 template에 넣기 때문에) 
+    // 최종 DOM일 가능성 높음 
+    //var templateData = template({}); 
+
+    // 5)compile을 완료하고 변수에 담아서 body에 추가한다. 
+    //document.querySelector('body').innerHTML += templateData; 
+
+    // 8. DOM을 상황에 따라 다르게 로드할 수 있다. 
+    
+    Handlebars.registerHelper("areEqual", function(num1, num2, options){
+        if(num1 === num2){
+            return options.fn(this); 
+        } else {
+            // else 뒤쪽에 있는 것 
+            return options.inverse(this); 
+        }
+    })
+
+    // 9. DOM 
+    Handlebars.registerHelper("if", function(data, options){
+        if(data === "isActive"){
+            return options.fn(this)
+        } else {
+            return options.inverse(this); 
+        }
+    })
+ 
+    // 최종 랜더링 
+    var templateData = template({}); 
+    document.querySelector('body').innerHTML += templateData; 
+
+</script>
+
+
+</body>
+</html>
